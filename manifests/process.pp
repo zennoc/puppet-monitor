@@ -3,10 +3,11 @@ define monitor::process (
   $service,
   $pidfile,
   $tool,
-  $enable   = true,
-  $argument = '',
-  $user     = '',
-  $template = ''
+  $enable       = true,
+  $argument     = '',
+  $user         = '',
+  $template     = '',
+  $config_hash  = {}
   ) {
 
   $bool_enable=any2bool($enable)
@@ -34,6 +35,28 @@ define monitor::process (
       startprogram => "/etc/init.d/${service} start",
       stopprogram  => "/etc/init.d/${service} stop",
       enable       => $bool_enable,
+    }
+  }
+
+  if ($tool =~ /bluepill/) {
+    bluepill::process { $name:
+      pidfile      => $pidfile,
+      process      => "${process}${argument}",
+      startprogram => "/etc/init.d/${service} start",
+      stopprogram  => "/etc/init.d/${service} stop",
+      enable       => $bool_enable,
+      config_hash  => $config_hash,
+    }
+  }
+
+  if ($tool =~ /eye/) {
+    eye::process { $name:
+      pidfile      => $pidfile,
+      process      => "${process}${argument}",
+      startprogram => "/etc/init.d/${service} start",
+      stopprogram  => "/etc/init.d/${service} stop",
+      enable       => $bool_enable,
+      config_hash  => $config_hash,
     }
   }
 

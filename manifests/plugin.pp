@@ -29,6 +29,9 @@
 #   content => template ( $template )
 #   Content actually depends on the monitoring tool used
 #
+# [*options_hash*]
+#   An hash of custom options to be used in templates for arbitrary settings.
+#
 # [*enable*]
 #   Use this to enable or disable the check. Default: true
 #
@@ -43,12 +46,15 @@
 define monitor::plugin (
   $plugin,
   $tool,
-  $arguments   = '',
-  $checksource = 'local', # Note: Remote checksource might not work properly
-  $template    = '',
-  $enable      = true
+  $arguments    = '',
+  $checksource  = 'local', # Note: Remote checksource might not work properly
+  $template     = '',
+  $options_hash = {},
+  $enable       = true
   ) {
 
+  include nrpe
+  
   $bool_enable = any2bool($enable)
   $safe_name = regsubst($name, '(/| )', '_', 'G')
   $ensure = $bool_enable ? {
@@ -70,6 +76,7 @@ define monitor::plugin (
   if ($tool =~ /nagios/) {
     nagios::service { $safe_name:
       ensure        => $ensure,
+      options_hash  => $options_hash,
       template      => $real_template,
       check_command => $check_command,
     }
